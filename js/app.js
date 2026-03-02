@@ -67,9 +67,7 @@ async function saveSettingsToDB(settings) {
 // --- CRUD: Offerings ---
 async function addOfferingToDB(data) {
     try {
-        const ref = await offeringsCollection.add(data);
-        data.id = ref.id;
-        offeringsCache.unshift(data);
+        await offeringsCollection.add(data);
         showToast('Offering saved!', 'success');
         return true;
     } catch (err) {
@@ -82,8 +80,6 @@ async function addOfferingToDB(data) {
 async function updateOfferingInDB(id, data) {
     try {
         await offeringsCollection.doc(id).update(data);
-        const i = offeringsCache.findIndex(o => o.id === id);
-        if (i !== -1) offeringsCache[i] = { ...offeringsCache[i], ...data };
         showToast('Offering updated!', 'success');
         return true;
     } catch (err) {
@@ -96,7 +92,6 @@ async function updateOfferingInDB(id, data) {
 async function deleteOfferingFromDB(id) {
     try {
         await offeringsCollection.doc(id).delete();
-        offeringsCache = offeringsCache.filter(o => o.id !== id);
         showToast('Offering deleted.', 'info');
         return true;
     } catch (err) {
@@ -109,9 +104,7 @@ async function deleteOfferingFromDB(id) {
 // --- CRUD: Expenses ---
 async function addExpenseToDB(data) {
     try {
-        const ref = await expensesCollection.add(data);
-        data.id = ref.id;
-        expensesCache.unshift(data);
+        await expensesCollection.add(data);
         showToast('Expense saved!', 'success');
         return true;
     } catch (err) {
@@ -124,8 +117,6 @@ async function addExpenseToDB(data) {
 async function updateExpenseInDB(id, data) {
     try {
         await expensesCollection.doc(id).update(data);
-        const i = expensesCache.findIndex(o => o.id === id);
-        if (i !== -1) expensesCache[i] = { ...expensesCache[i], ...data };
         showToast('Expense updated!', 'success');
         return true;
     } catch (err) {
@@ -138,7 +129,6 @@ async function updateExpenseInDB(id, data) {
 async function deleteExpenseFromDB(id) {
     try {
         await expensesCollection.doc(id).delete();
-        expensesCache = expensesCache.filter(o => o.id !== id);
         showToast('Expense deleted.', 'info');
         return true;
     } catch (err) {
@@ -159,34 +149,91 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function getOrdinalDay(dateStr) {
+    const d = new Date(dateStr);
+    const dayOfMonth = d.getDate();
+    const nth = Math.ceil(dayOfMonth / 7);
+    const suffixes = ['th', 'st', 'nd', 'rd', 'th'];
+    const suffix = nth <= 3 ? suffixes[nth] : 'th';
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+    return `${nth}${suffix} ${dayName}`;
+}
+
+function getServiceBadge(serviceType) {
+    if (serviceType === 'General Funds' || serviceType === 'Prayer Meeting') {
+        return '<span style="background:#00c9a7;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.75em;white-space:nowrap;"><i class="fas fa-wallet"></i> General Funds</span>';
+    }
+    return '<span style="background:#6c63ff;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.75em;white-space:nowrap;"><i class="fas fa-church"></i> Missionary</span>';
+}
+
 // ==================== NAVIGATION ====================
 
 function navigateTo(page) {
+    if (page === 'settings') {
+        const pwd = prompt('Enter password to access Settings:');
+        if (pwd !== 'mccadmin') {
+            showToast('Incorrect password.', 'error');
+            return;
+        }
+    }
+
+    if (page === 'reports') {
+        const dropdown = document.getElementById('reportsDropdown');
+        const icon = document.querySelector('#nav-reports .dropdown-icon');
+        if (dropdown && (dropdown.style.display === 'none' || dropdown.style.display === '')) {
+            dropdown.style.display = 'flex';
+            if (icon) icon.style.transform = 'rotate(180deg)';
+        } else if (dropdown) {
+            dropdown.style.display = 'none';
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+        return; // Just toggle dropdown, do not attempt to navigate
+    }
+
+    localStorage.setItem('currentPage', page);
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
     if (nav) nav.classList.add('active');
 
+    if (page.startsWith('reports-')) {
+        const parentNav = document.getElementById('nav-reports');
+        if (parentNav) parentNav.classList.add('active');
+        const dropdown = document.getElementById('reportsDropdown');
+        const icon = document.querySelector('#nav-reports .dropdown-icon');
+        if (dropdown) dropdown.style.display = 'flex';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+    } else {
+        const dropdown = document.getElementById('reportsDropdown');
+        const icon = document.querySelector('#nav-reports .dropdown-icon');
+        if (dropdown) dropdown.style.display = 'none';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+    }
+
     document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-    const pg = document.getElementById(`page-${page}`);
+    const actualPageId = page.startsWith('reports-') ? 'reports' : page;
+    const pg = document.getElementById(`page-${actualPageId}`);
     if (pg) { void pg.offsetWidth; pg.classList.add('active'); }
 
     const titles = {
         'dashboard': ['Dashboard', "Overview of this month's finances"],
         'add-offering': ['Add Offering', 'Record total Sunday service offering'],
         'add-expense': ['Add Expense', 'Record a church expense'],
-        'reports': ['Monthly Reports', 'Offerings vs expenses per month'],
+        'reports-missionary': ['Missionary Monthly Reports', 'Offerings vs expenses per month'],
+        'reports-general': ['General Fund Monthly Reports', 'Offerings vs expenses per month'],
+        'reports-building': ['Building Fund Monthly Reports', 'Offerings vs expenses per month'],
         'settings': ['Settings', 'Manage church information and data']
     };
 
     const [t, s] = titles[page] || ['', ''];
-    document.getElementById('pageTitle').textContent = t;
-    document.getElementById('pageSubtitle').textContent = s;
-    document.getElementById('sidebar').classList.remove('open');
+    if (t) document.getElementById('pageTitle').textContent = t;
+    if (s) document.getElementById('pageSubtitle').textContent = s;
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.remove('open');
 
     if (page === 'dashboard') refreshDashboard();
     if (page === 'add-offering') refreshOfferingHistory();
     if (page === 'add-expense') refreshExpenseHistory();
-    if (page === 'reports') refreshReports();
+    if (page.startsWith('reports-')) refreshReports();
     if (page === 'settings') loadSettingsUI();
 }
 
@@ -204,11 +251,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     setCurrentDate();
     setDefaultDates();
 
+    // Restore page state early on refresh to avoid flashing the dashboard
+    let savedPage = localStorage.getItem('currentPage') || 'dashboard';
+    if (savedPage === 'reports') savedPage = 'reports-missionary'; // migrate old layout
+    navigateTo(savedPage);
+
     showToast('Loading data...', 'info');
     await Promise.all([loadOfferings(), loadExpenses(), loadSettingsFromDB()]);
     showToast('Data loaded successfully!', 'success');
 
     refreshDashboard();
+    refreshCurrentPage();
     setupRealtimeListeners();
 });
 
@@ -245,33 +298,36 @@ function setDefaultDates() {
     updateSundayIndicator(today);
 }
 
-function getSundayLabel(dateStr) {
+function getServiceLabel(dateStr, serviceType) {
     const d = new Date(dateStr);
-    const day = d.getDay(); // 0 = Sunday
-    if (day !== 0) return null; // Not a Sunday
-
+    const day = d.getDay();
     const dayOfMonth = d.getDate();
     const nth = Math.ceil(dayOfMonth / 7);
     const suffixes = ['th', 'st', 'nd', 'rd', 'th'];
     const suffix = nth <= 3 ? suffixes[nth] : 'th';
     const monthName = d.toLocaleDateString('en-US', { month: 'long' });
-    return `${nth}${suffix} Sunday of ${monthName}`;
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+    return `${dayName}, ${monthName} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// Keep backward compatibility
+function getSundayLabel(dateStr) {
+    return getServiceLabel(dateStr, 'Missionary Funds');
+}
+
+function updateDayIndicator(dateStr, serviceType) {
+    const indicator = document.getElementById('sundayIndicator');
+    const label = document.getElementById('sundayLabel');
+    if (!dateStr) { label.textContent = '\u2014'; return; }
+
+    const serviceLabel = getServiceLabel(dateStr, serviceType || 'Missionary Funds');
+    label.textContent = serviceLabel;
+    indicator.classList.remove('not-sunday');
 }
 
 function updateSundayIndicator(dateStr) {
-    const indicator = document.getElementById('sundayIndicator');
-    const label = document.getElementById('sundayLabel');
-    if (!dateStr) { label.textContent = '—'; return; }
-
-    const sundayText = getSundayLabel(dateStr);
-    if (sundayText) {
-        label.textContent = sundayText;
-        indicator.classList.remove('not-sunday');
-    } else {
-        const dayName = new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' });
-        label.textContent = `Not a Sunday (${dayName})`;
-        indicator.classList.add('not-sunday');
-    }
+    const serviceType = document.getElementById('offeringType')?.value || 'Missionary Funds';
+    updateDayIndicator(dateStr, serviceType);
 }
 
 // ==================== THEME TOGGLE ====================
@@ -334,10 +390,14 @@ function initNavigation() {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
-            navigateTo(item.dataset.page);
-            // Close sidebar on mobile after nav click
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
+            const page = item.dataset.page;
+            navigateTo(page);
+
+            // Close sidebar on mobile after nav click, UNLESS it's just toggling the dropdown
+            if (page !== 'reports') {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
         });
     });
 
@@ -380,63 +440,128 @@ function refreshDashboard() {
     remEl.textContent = formatCurrency(remaining);
     remEl.style.color = remaining >= 0 ? 'var(--balance-green)' : 'var(--accent-red)';
 
-    // Recent Offerings (last 5)
-    const recentOff = [...offeringsCache].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-    const offBody = document.getElementById('dashOfferingsBody');
-    const offEmpty = document.getElementById('dashOfferingsEmpty');
+    // Split offerings by fund type
+    const allOffSorted = [...offeringsCache].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const missionaryOff = allOffSorted.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund').slice(0, 5);
+    const generalOff = allOffSorted.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting').slice(0, 5);
+    const buildingOff = allOffSorted.filter(o => o.serviceType === 'Building Fund').slice(0, 5);
 
-    if (recentOff.length === 0) {
-        offBody.innerHTML = '';
-        offEmpty.style.display = 'block';
-    } else {
-        offEmpty.style.display = 'none';
-        offBody.innerHTML = recentOff.map(o => `
-            <tr>
-                <td>${formatDate(o.date)}</td>
-                <td class="amount-cell">${formatCurrency(o.amount)}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn edit" onclick="openEditOffering('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="confirmDelete('offering','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+    // Split expenses by fund type
+    const allExpSorted = [...expensesCache].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const missionaryExp = allExpSorted.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund').slice(0, 5);
+    const generalExp = allExpSorted.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting').slice(0, 5);
+    const buildingExp = allExpSorted.filter(o => o.serviceType === 'Building Fund').slice(0, 5);
+
+    // Render offering rows (no Service column needed since they're separated)
+    function renderOfferingRows(items, bodyId, emptyId, editFn) {
+        const body = document.getElementById(bodyId);
+        const empty = document.getElementById(emptyId);
+        if (items.length === 0) {
+            body.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            body.innerHTML = items.map(o => `
+                <tr>
+                    <td>${formatDate(o.date)}</td>
+                    <td class="amount-cell">${formatCurrency(o.amount)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="openEditOffering('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="confirmDelete('offering','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
-    // Recent Expenses (last 5)
-    const recentExp = [...expensesCache].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-    const expBody = document.getElementById('dashExpensesBody');
-    const expEmpty = document.getElementById('dashExpensesEmpty');
-
-    if (recentExp.length === 0) {
-        expBody.innerHTML = '';
-        expEmpty.style.display = 'block';
-    } else {
-        expEmpty.style.display = 'none';
-        expBody.innerHTML = recentExp.map(o => `
-            <tr>
-                <td>${formatDate(o.date)}</td>
-                <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.description}">${o.description}</td>
-                <td class="expense-cell">${formatCurrency(o.amount)}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn edit" onclick="openEditExpense('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="confirmDelete('expense','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+    function renderExpenseRows(items, bodyId, emptyId) {
+        const body = document.getElementById(bodyId);
+        const empty = document.getElementById(emptyId);
+        if (items.length === 0) {
+            body.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            body.innerHTML = items.map(o => `
+                <tr>
+                    <td>${formatDate(o.date)}</td>
+                    <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.description}">${o.description}</td>
+                    <td class="expense-cell">${formatCurrency(o.amount)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="openEditExpense('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="confirmDelete('expense','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
+
+    // Missionary
+    renderOfferingRows(missionaryOff, 'dashMissionaryOfferingsBody', 'dashMissionaryOfferingsEmpty');
+    renderExpenseRows(missionaryExp, 'dashMissionaryExpensesBody', 'dashMissionaryExpensesEmpty');
+
+    // General
+    renderOfferingRows(generalOff, 'dashGeneralOfferingsBody', 'dashGeneralOfferingsEmpty');
+    renderExpenseRows(generalExp, 'dashGeneralExpensesBody', 'dashGeneralExpensesEmpty');
+
+    // Building
+    renderOfferingRows(buildingOff, 'dashBuildingOfferingsBody', 'dashBuildingOfferingsEmpty');
+    renderExpenseRows(buildingExp, 'dashBuildingExpensesBody', 'dashBuildingExpensesEmpty');
 }
 
 // ==================== ADD OFFERING ====================
 
+function populateHistoryMonthDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const currentVal = select.value;
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const yearsSet = new Set([currentYear]);
+    offeringsCache.forEach(o => yearsSet.add(new Date(o.date).getFullYear()));
+    expensesCache.forEach(o => yearsSet.add(new Date(o.date).getFullYear()));
+
+    const allMonths = [];
+    [...yearsSet].sort((a, b) => b - a).forEach(year => {
+        for (let m = 12; m >= 1; m--) {
+            allMonths.push(`${year}-${String(m).padStart(2, '0')}`);
+        }
+    });
+
+    const sorted = [...new Set(allMonths)].sort().reverse();
+
+    let html = '<option value="all">All Time</option>';
+    html += sorted.map(m => {
+        const [y, mo] = m.split('-');
+        const label = new Date(y, mo - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        return `<option value="${m}">${label}</option>`;
+    }).join('');
+
+    select.innerHTML = html;
+
+    if (currentVal && (sorted.includes(currentVal) || currentVal === 'all')) {
+        select.value = currentVal;
+    } else {
+        select.value = 'all';
+    }
+}
+
 function initOfferingForm() {
-    // Sunday indicator: update on date change
+    // Day indicator: update on date or type change
     document.getElementById('offeringDate').addEventListener('change', e => {
         updateSundayIndicator(e.target.value);
     });
+    document.getElementById('offeringType').addEventListener('change', () => {
+        const dateVal = document.getElementById('offeringDate').value;
+        if (dateVal) updateSundayIndicator(dateVal);
+    });
+
+    document.getElementById('offeringHistoryMonth').addEventListener('change', refreshOfferingHistory);
 
     document.getElementById('offeringForm').addEventListener('submit', async e => {
         e.preventDefault();
@@ -446,6 +571,7 @@ function initOfferingForm() {
 
         const dateVal = document.getElementById('offeringDate').value;
         const amountVal = document.getElementById('offeringAmount').value;
+        const serviceType = document.getElementById('offeringType').value;
 
         if (!dateVal || !amountVal || parseFloat(amountVal) <= 0) {
             showToast('Please fill in date and amount.', 'error');
@@ -453,12 +579,13 @@ function initOfferingForm() {
             return;
         }
 
-        const sundayText = getSundayLabel(dateVal);
+        const serviceLabel = getServiceLabel(dateVal, serviceType);
 
         const data = {
             date: dateVal,
             amount: parseFloat(amountVal),
-            sundayLabel: sundayText || '',
+            serviceType: serviceType,
+            sundayLabel: serviceLabel || '',
             notes: document.getElementById('offeringNotes').value.trim(),
             createdAt: new Date().toISOString()
         };
@@ -470,38 +597,61 @@ function initOfferingForm() {
             setDefaultDates();
             refreshOfferingHistory();
             refreshDashboard();
+            closeModal('addOfferingModal');
         }
     });
 }
 
 function refreshOfferingHistory() {
-    const sorted = [...offeringsCache].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const body = document.getElementById('offeringHistoryBody');
-    const empty = document.getElementById('offeringHistoryEmpty');
+    populateHistoryMonthDropdown('offeringHistoryMonth');
+    let sorted = [...offeringsCache].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    if (sorted.length === 0) {
-        body.innerHTML = '';
-        empty.style.display = 'block';
-    } else {
-        empty.style.display = 'none';
-        body.innerHTML = sorted.map(o => `
-            <tr>
-                <td>${formatDate(o.date)}</td>
-                <td class="amount-cell">${formatCurrency(o.amount)}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn edit" onclick="openEditOffering('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="confirmDelete('offering','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+    const selectedMonth = document.getElementById('offeringHistoryMonth').value;
+    if (selectedMonth && selectedMonth !== 'all') {
+        const [y, m] = selectedMonth.split('-');
+        sorted = sorted.filter(o => {
+            const d = new Date(o.date);
+            return d.getFullYear() === parseInt(y) && (d.getMonth() + 1) === parseInt(m);
+        });
     }
+
+    const missionary = sorted.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund');
+    const general = sorted.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting');
+    const building = sorted.filter(o => o.serviceType === 'Building Fund');
+
+    function renderList(items, bodyId, emptyId) {
+        const body = document.getElementById(bodyId);
+        const empty = document.getElementById(emptyId);
+        if (items.length === 0) {
+            body.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            body.innerHTML = items.map(o => `
+                <tr>
+                    <td>${formatDate(o.date)}</td>
+                    <td class="amount-cell">${formatCurrency(o.amount)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="openEditOffering('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="confirmDelete('offering','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    renderList(missionary, 'missionaryOfferingHistoryBody', 'missionaryOfferingHistoryEmpty');
+    renderList(general, 'generalOfferingHistoryBody', 'generalOfferingHistoryEmpty');
+    renderList(building, 'buildingOfferingHistoryBody', 'buildingOfferingHistoryEmpty');
 }
 
 // ==================== ADD EXPENSE ====================
 
 function initExpenseForm() {
+    document.getElementById('expenseHistoryMonth').addEventListener('change', refreshExpenseHistory);
+
     document.getElementById('expenseForm').addEventListener('submit', async e => {
         e.preventDefault();
         const btn = document.getElementById('saveExpenseBtn');
@@ -513,6 +663,7 @@ function initExpenseForm() {
             amount: parseFloat(document.getElementById('expenseAmount').value),
             description: document.getElementById('expenseDescription').value.trim(),
             category: document.getElementById('expenseCategory').value,
+            serviceType: document.getElementById('expenseServiceType').value,
             notes: document.getElementById('expenseNotes').value.trim(),
             createdAt: new Date().toISOString()
         };
@@ -530,34 +681,55 @@ function initExpenseForm() {
             setDefaultDates();
             refreshExpenseHistory();
             refreshDashboard();
+            closeModal('addExpenseModal');
         }
     });
 }
 
 function refreshExpenseHistory() {
-    const sorted = [...expensesCache].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const body = document.getElementById('expenseHistoryBody');
-    const empty = document.getElementById('expenseHistoryEmpty');
+    populateHistoryMonthDropdown('expenseHistoryMonth');
+    let sorted = [...expensesCache].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    if (sorted.length === 0) {
-        body.innerHTML = '';
-        empty.style.display = 'block';
-    } else {
-        empty.style.display = 'none';
-        body.innerHTML = sorted.map(o => `
-            <tr>
-                <td>${formatDate(o.date)}</td>
-                <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.description}">${o.description}</td>
-                <td class="expense-cell">${formatCurrency(o.amount)}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn edit" onclick="openEditExpense('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="confirmDelete('expense','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+    const selectedMonth = document.getElementById('expenseHistoryMonth').value;
+    if (selectedMonth && selectedMonth !== 'all') {
+        const [y, m] = selectedMonth.split('-');
+        sorted = sorted.filter(o => {
+            const d = new Date(o.date);
+            return d.getFullYear() === parseInt(y) && (d.getMonth() + 1) === parseInt(m);
+        });
     }
+
+    const missionary = sorted.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund');
+    const general = sorted.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting');
+    const building = sorted.filter(o => o.serviceType === 'Building Fund');
+
+    function renderList(items, bodyId, emptyId) {
+        const body = document.getElementById(bodyId);
+        const empty = document.getElementById(emptyId);
+        if (items.length === 0) {
+            body.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            body.innerHTML = items.map(o => `
+                <tr>
+                    <td>${formatDate(o.date)}</td>
+                    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.description}">${o.description}</td>
+                    <td class="expense-cell">${formatCurrency(o.amount)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="openEditExpense('${o.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="confirmDelete('expense','${o.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    renderList(missionary, 'missionaryExpenseHistoryBody', 'missionaryExpenseHistoryEmpty');
+    renderList(general, 'generalExpenseHistoryBody', 'generalExpenseHistoryEmpty');
+    renderList(building, 'buildingExpenseHistoryBody', 'buildingExpenseHistoryEmpty');
 }
 
 // ==================== MONTHLY REPORTS ====================
@@ -624,57 +796,215 @@ function refreshReports() {
         .filter(o => { const d = new Date(o.date); return d.getMonth() === month - 1 && d.getFullYear() === year; })
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const totalOff = mOff.reduce((s, o) => s + parseFloat(o.amount), 0);
-    const totalExp = mExp.reduce((s, o) => s + parseFloat(o.amount), 0);
+    // Split by service type
+    const sunOff = mOff.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund');
+    const prayOff = mOff.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting');
+    const buildOff = mOff.filter(o => o.serviceType === 'Building Fund');
+
+    const sunExp = mExp.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund');
+    const prayExp = mExp.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting');
+    const buildExp = mExp.filter(o => o.serviceType === 'Building Fund');
+
+    const baseTotalSunOff = sunOff.reduce((s, o) => s + parseFloat(o.amount), 0);
+    const buildingAllocation = baseTotalSunOff * 0.20;
+    const totalSunOff = baseTotalSunOff - buildingAllocation;
+    const totalSunExp = sunExp.reduce((s, o) => s + parseFloat(o.amount), 0);
+
+    const totalPrayOff = prayOff.reduce((s, o) => s + parseFloat(o.amount), 0);
+    const totalPrayExp = prayExp.reduce((s, o) => s + parseFloat(o.amount), 0);
+
+    const baseTotalBuildOff = buildOff.reduce((s, o) => s + parseFloat(o.amount), 0);
+    const totalBuildOff = baseTotalBuildOff + buildingAllocation;
+    const totalBuildExp = buildExp.reduce((s, o) => s + parseFloat(o.amount), 0);
+
+    // Filter Previous months
+    const prevOff = offeringsCache.filter(o => {
+        const d = new Date(o.date);
+        return d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() < month - 1);
+    });
+    const prevExp = expensesCache.filter(o => {
+        const d = new Date(o.date);
+        return d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() < month - 1);
+    });
+
+    // Previous Balances
+    const prevSunOffBase = prevOff.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const prevSunAllocation = prevSunOffBase * 0.20;
+    const prevSunExp = prevExp.filter(o => o.serviceType !== 'General Funds' && o.serviceType !== 'Prayer Meeting' && o.serviceType !== 'Building Fund').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const previousSunBalance = (prevSunOffBase - prevSunAllocation) - prevSunExp;
+
+    const prevPrayOff = prevOff.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const prevPrayExp = prevExp.filter(o => o.serviceType === 'General Funds' || o.serviceType === 'Prayer Meeting').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const previousPrayBalance = prevPrayOff - prevPrayExp;
+
+    const prevBuildOffBase = prevOff.filter(o => o.serviceType === 'Building Fund').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const prevBuildExp = prevExp.filter(o => o.serviceType === 'Building Fund').reduce((s, o) => s + parseFloat(o.amount), 0);
+    const previousBuildBalance = (prevBuildOffBase + prevSunAllocation) - prevBuildExp;
+
+    // Totals + Balances
+    const sunThisMonth = totalSunOff - totalSunExp;
+    const sunRemaining = sunThisMonth + previousSunBalance;
+
+    const prayThisMonth = totalPrayOff - totalPrayExp;
+    const prayRemaining = prayThisMonth + previousPrayBalance;
+
+    const buildThisMonth = totalBuildOff - totalBuildExp;
+    const buildRemaining = buildThisMonth + previousBuildBalance;
+
+    const totalOff = totalSunOff + totalPrayOff + totalBuildOff;
+    const totalExp = totalSunExp + totalPrayExp + totalBuildExp;
     const remaining = totalOff - totalExp;
 
-    // Update summary cards
-    document.getElementById('reportTotalOfferings').textContent = formatCurrency(totalOff);
-    document.getElementById('reportTotalExpenses').textContent = formatCurrency(totalExp);
+    const activePage = localStorage.getItem('currentPage') || 'reports-missionary';
+    const isMissionary = activePage === 'reports-missionary';
+    const isGeneral = activePage === 'reports-general';
+    const isBuilding = activePage === 'reports-building';
 
-    const remEl = document.getElementById('reportRemaining');
-    remEl.textContent = formatCurrency(remaining);
-    remEl.style.color = remaining >= 0 ? 'var(--balance-green)' : 'var(--accent-red)';
+    // Update top summary cards dynamically based on active report fund
+    if (isMissionary) {
+        document.getElementById('reportTotalOfferings').textContent = formatCurrency(totalSunOff);
+        document.getElementById('reportTotalExpenses').textContent = formatCurrency(totalSunExp);
+        const remEl = document.getElementById('reportRemaining');
+        remEl.textContent = formatCurrency(sunRemaining);
+        remEl.style.color = sunRemaining >= 0 ? 'var(--balance-green)' : 'var(--accent-red)';
 
-    // Update detail card title
-    document.getElementById('monthDetailTitle').textContent = monthLabel;
+        document.getElementById('sundayDetailCard').style.display = 'block';
+        document.getElementById('prayerDetailCard').style.display = 'none';
+        document.getElementById('buildingDetailCard').style.display = 'none';
+    } else if (isGeneral) {
+        document.getElementById('reportTotalOfferings').textContent = formatCurrency(totalPrayOff);
+        document.getElementById('reportTotalExpenses').textContent = formatCurrency(totalPrayExp);
+        const remEl = document.getElementById('reportRemaining');
+        remEl.textContent = formatCurrency(prayRemaining);
+        remEl.style.color = prayRemaining >= 0 ? 'var(--balance-green)' : 'var(--accent-red)';
 
-    // Offerings table
-    const offBody = document.getElementById('monthDetailOfferings');
-    offBody.innerHTML = mOff.length === 0
-        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No offerings recorded this month</td></tr>'
-        : mOff.map(o => `
+        document.getElementById('sundayDetailCard').style.display = 'none';
+        document.getElementById('prayerDetailCard').style.display = 'block';
+        document.getElementById('buildingDetailCard').style.display = 'none';
+    } else if (isBuilding) {
+        document.getElementById('reportTotalOfferings').textContent = formatCurrency(totalBuildOff);
+        document.getElementById('reportTotalExpenses').textContent = formatCurrency(totalBuildExp);
+        const remEl = document.getElementById('reportRemaining');
+        remEl.textContent = formatCurrency(buildRemaining);
+        remEl.style.color = buildRemaining >= 0 ? 'var(--balance-green)' : 'var(--accent-red)';
+
+        document.getElementById('sundayDetailCard').style.display = 'none';
+        document.getElementById('prayerDetailCard').style.display = 'none';
+        document.getElementById('buildingDetailCard').style.display = 'block';
+    }
+
+    // ---- SUNDAY SERVICE SECTION ----
+    document.getElementById('sundayDetailTitle').textContent = monthLabel;
+
+    const sunOffBody = document.getElementById('sundayDetailOfferings');
+    sunOffBody.innerHTML = sunOff.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No Sunday offerings this month</td></tr>'
+        : sunOff.map(o => `
             <tr>
                 <td>${formatDate(o.date)}</td>
                 <td class="amount-cell">${formatCurrency(o.amount)}</td>
-                <td style="color:var(--text-muted);">${o.notes || '—'}</td>
+                <td style="color:var(--text-muted);">${getOrdinalDay(o.date)}</td>
             </tr>
         `).join('');
+    document.getElementById('sundayDetailOfferingsTotal').textContent = formatCurrency(baseTotalSunOff);
 
-    document.getElementById('monthDetailOfferingsTotal').textContent = formatCurrency(totalOff);
-
-    // Expenses table
-    const expBody = document.getElementById('monthDetailExpenses');
-    expBody.innerHTML = mExp.length === 0
-        ? '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">No expenses recorded this month</td></tr>'
-        : mExp.map(o => `
+    const sunExpBody = document.getElementById('sundayDetailExpenses');
+    sunExpBody.innerHTML = sunExp.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No Sunday expenses this month</td></tr>'
+        : sunExp.map(o => `
             <tr>
                 <td>${formatDate(o.date)}</td>
                 <td>${o.description}</td>
-                <td style="color:var(--text-muted);">${o.category || ''}</td>
                 <td class="expense-cell">${formatCurrency(o.amount)}</td>
             </tr>
         `).join('');
+    document.getElementById('sundayDetailExpensesTotal').textContent = formatCurrency(totalSunExp);
 
-    document.getElementById('monthDetailExpensesTotal').textContent = formatCurrency(totalExp);
+    if (document.getElementById('sundaySummaryBaseOfferings')) {
+        document.getElementById('sundaySummaryBaseOfferings').textContent = formatCurrency(baseTotalSunOff);
+        document.getElementById('sundaySummaryAllocation').textContent = `-${formatCurrency(buildingAllocation)}`;
+    }
+    document.getElementById('sundaySummaryOfferings').textContent = formatCurrency(totalSunOff);
+    document.getElementById('sundaySummaryExpenses').textContent = formatCurrency(totalSunExp);
+    document.getElementById('sundaySummaryThisMonth').textContent = formatCurrency(sunThisMonth);
+    document.getElementById('sundaySummaryPrevious').textContent = formatCurrency(previousSunBalance);
+    const sunRemEl = document.getElementById('sundaySummaryRemaining');
+    sunRemEl.textContent = formatCurrency(sunRemaining);
+    sunRemEl.className = sunRemaining >= 0 ? 'balance-cell' : 'balance-cell negative';
 
-    // Summary footer
-    document.getElementById('monthSummaryOfferings').textContent = formatCurrency(totalOff);
-    document.getElementById('monthSummaryExpenses').textContent = formatCurrency(totalExp);
+    // ---- PRAYER MEETING SECTION ----
+    document.getElementById('prayerDetailTitle').textContent = monthLabel;
 
-    const sumRemEl = document.getElementById('monthSummaryRemaining');
-    sumRemEl.textContent = formatCurrency(remaining);
-    sumRemEl.className = remaining >= 0 ? 'balance-cell' : 'balance-cell negative';
+    const prayOffBody = document.getElementById('prayerDetailOfferings');
+    prayOffBody.innerHTML = prayOff.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No general fund offerings this month</td></tr>'
+        : prayOff.map(o => `
+            <tr>
+                <td>${formatDate(o.date)}</td>
+                <td class="amount-cell">${formatCurrency(o.amount)}</td>
+                <td style="color:var(--text-muted);">${getOrdinalDay(o.date)}</td>
+            </tr>
+        `).join('');
+    document.getElementById('prayerDetailOfferingsTotal').textContent = formatCurrency(totalPrayOff);
+
+    const prayExpBody = document.getElementById('prayerDetailExpenses');
+    prayExpBody.innerHTML = prayExp.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No general fund expenses this month</td></tr>'
+        : prayExp.map(o => `
+            <tr>
+                <td>${formatDate(o.date)}</td>
+                <td>${o.description}</td>
+                <td class="expense-cell">${formatCurrency(o.amount)}</td>
+            </tr>
+        `).join('');
+    document.getElementById('prayerDetailExpensesTotal').textContent = formatCurrency(totalPrayExp);
+
+    document.getElementById('prayerSummaryOfferings').textContent = formatCurrency(totalPrayOff);
+    document.getElementById('prayerSummaryExpenses').textContent = formatCurrency(totalPrayExp);
+    document.getElementById('prayerSummaryThisMonth').textContent = formatCurrency(prayThisMonth);
+    document.getElementById('prayerSummaryPrevious').textContent = formatCurrency(previousPrayBalance);
+    const prayRemEl = document.getElementById('prayerSummaryRemaining');
+    prayRemEl.textContent = formatCurrency(prayRemaining);
+    prayRemEl.className = prayRemaining >= 0 ? 'balance-cell' : 'balance-cell negative';
+
+    // ---- BUILDING FUND SECTION ----
+    document.getElementById('buildingDetailTitle').textContent = monthLabel;
+
+    const buildOffBody = document.getElementById('buildingDetailOfferings');
+    buildOffBody.innerHTML = buildOff.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No building fund offerings this month</td></tr>'
+        : buildOff.map(o => `
+            <tr>
+                <td>${formatDate(o.date)}</td>
+                <td class="amount-cell">${formatCurrency(o.amount)}</td>
+                <td style="color:var(--text-muted);">${getOrdinalDay(o.date)}</td>
+            </tr>
+        `).join('');
+    document.getElementById('buildingDetailOfferingsTotal').textContent = formatCurrency(baseTotalBuildOff);
+
+    const buildExpBody = document.getElementById('buildingDetailExpenses');
+    buildExpBody.innerHTML = buildExp.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">No building fund expenses this month</td></tr>'
+        : buildExp.map(o => `
+            <tr>
+                <td>${formatDate(o.date)}</td>
+                <td>${o.description}</td>
+                <td class="expense-cell">${formatCurrency(o.amount)}</td>
+            </tr>
+        `).join('');
+    document.getElementById('buildingDetailExpensesTotal').textContent = formatCurrency(totalBuildExp);
+
+    if (document.getElementById('buildingSummaryBaseOfferings')) {
+        document.getElementById('buildingSummaryBaseOfferings').textContent = formatCurrency(baseTotalBuildOff);
+        document.getElementById('buildingSummaryAllocation').textContent = `+${formatCurrency(buildingAllocation)}`;
+    }
+    document.getElementById('buildingSummaryOfferings').textContent = formatCurrency(totalBuildOff);
+    document.getElementById('buildingSummaryExpenses').textContent = formatCurrency(totalBuildExp);
+    document.getElementById('buildingSummaryThisMonth').textContent = formatCurrency(buildThisMonth);
+    document.getElementById('buildingSummaryPrevious').textContent = formatCurrency(previousBuildBalance);
+    const buildRemEl = document.getElementById('buildingSummaryRemaining');
+    buildRemEl.textContent = formatCurrency(buildRemaining);
+    buildRemEl.className = buildRemaining >= 0 ? 'balance-cell' : 'balance-cell negative';
 }
 
 function exportReportCSV() {
@@ -687,9 +1017,9 @@ function exportReportCSV() {
     const mOff = offeringsCache.filter(o => { const d = new Date(o.date); return d.getMonth() === month - 1 && d.getFullYear() === year; });
     const mExp = expensesCache.filter(o => { const d = new Date(o.date); return d.getMonth() === month - 1 && d.getFullYear() === year; });
 
-    const rows = [['Type', 'Date', 'Description', 'Category', 'Amount']];
-    mOff.forEach(o => rows.push(['Offering', o.date, o.notes || '', '', parseFloat(o.amount).toFixed(2)]));
-    mExp.forEach(o => rows.push(['Expense', o.date, o.description, o.category || '', parseFloat(o.amount).toFixed(2)]));
+    const rows = [['Type', 'Service', 'Date', 'Description', 'Category', 'Amount']];
+    mOff.forEach(o => rows.push(['Offering', o.serviceType || 'Missionary Funds', o.date, o.notes || '', '', parseFloat(o.amount).toFixed(2)]));
+    mExp.forEach(o => rows.push(['Expense', o.serviceType || 'Missionary Funds', o.date, o.description, o.category || '', parseFloat(o.amount).toFixed(2)]));
 
     const totalOff = mOff.reduce((s, o) => s + parseFloat(o.amount), 0);
     const totalExp = mExp.reduce((s, o) => s + parseFloat(o.amount), 0);
@@ -709,6 +1039,7 @@ function openEditOffering(id) {
     const o = offeringsCache.find(x => x.id === id);
     if (!o) return;
     document.getElementById('editOfferingId').value = id;
+    document.getElementById('editOfferingType').value = o.serviceType || 'Missionary Funds';
     document.getElementById('editOfferingDate').value = o.date;
     document.getElementById('editOfferingAmount').value = o.amount;
     document.getElementById('editOfferingNotes').value = o.notes || '';
@@ -719,6 +1050,7 @@ function openEditExpense(id) {
     const o = expensesCache.find(x => x.id === id);
     if (!o) return;
     document.getElementById('editExpenseId').value = id;
+    document.getElementById('editExpenseServiceType').value = o.serviceType || 'Missionary Funds';
     document.getElementById('editExpenseDate').value = o.date;
     document.getElementById('editExpenseAmount2').value = o.amount;
     document.getElementById('editExpenseDesc').value = o.description;
@@ -733,6 +1065,7 @@ function initModals() {
         e.preventDefault();
         const id = document.getElementById('editOfferingId').value;
         const ok = await updateOfferingInDB(id, {
+            serviceType: document.getElementById('editOfferingType').value,
             date: document.getElementById('editOfferingDate').value,
             amount: parseFloat(document.getElementById('editOfferingAmount').value),
             notes: document.getElementById('editOfferingNotes').value.trim(),
@@ -746,6 +1079,7 @@ function initModals() {
         e.preventDefault();
         const id = document.getElementById('editExpenseId').value;
         const ok = await updateExpenseInDB(id, {
+            serviceType: document.getElementById('editExpenseServiceType').value,
             date: document.getElementById('editExpenseDate').value,
             amount: parseFloat(document.getElementById('editExpenseAmount2').value),
             description: document.getElementById('editExpenseDesc').value.trim(),
@@ -781,6 +1115,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ok) { closeModal('deleteModal'); refreshCurrentPage(); refreshDashboard(); }
     });
 });
+
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
 
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');

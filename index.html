@@ -30,7 +30,7 @@
                 <img src="assets/mcclogo.jpg" alt="MCC Logo" class="logo-img">
                 <div class="logo-text">
                     <h1>Malauli Christian Church</h1>
-                    <span>Offerings Management</span>
+                    <span><i>"By Grace We are Saved"</i></span>
                 </div>
             </div>
         </div>
@@ -41,16 +41,38 @@
             </a>
             <a href="#" class="nav-item" data-page="add-offering" id="nav-add-offering">
                 <i class="fas fa-hand-holding-heart"></i>
-                <span>Add Offering</span>
+                <span>Offerings</span>
             </a>
             <a href="#" class="nav-item" data-page="add-expense" id="nav-add-expense">
                 <i class="fas fa-receipt"></i>
-                <span>Add Expense</span>
+                <span>Expenses</span>
             </a>
-            <a href="#" class="nav-item" data-page="reports" id="nav-reports">
-                <i class="fas fa-chart-bar"></i>
-                <span>Monthly Reports</span>
-            </a>
+            <div class="nav-item-has-dropdown">
+                <a href="#" class="nav-item" data-page="reports" id="nav-reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span style="flex: 1;">Monthly Reports</span>
+                    <i class="fas fa-chevron-down dropdown-icon"
+                        style="transition: transform 0.3s; font-size: 12px; margin-left: auto; text-align: right;"></i>
+                </a>
+                <div class="nav-dropdown" id="reportsDropdown"
+                    style="display: none; flex-direction: column; padding-left: 24px; margin-top: 2px;">
+                    <a href="#" class="nav-item sub-item" data-page="reports-missionary" id="nav-reports-missionary"
+                        style="padding: 10px 16px; font-size: 13px;">
+                        <i class="fas fa-church" style="font-size: 12px; margin-right: -4px;"></i>
+                        <span>Missionary Fund</span>
+                    </a>
+                    <a href="#" class="nav-item sub-item" data-page="reports-general" id="nav-reports-general"
+                        style="padding: 10px 16px; font-size: 13px;">
+                        <i class="fas fa-wallet" style="font-size: 12px; margin-right: -4px;"></i>
+                        <span>General Fund</span>
+                    </a>
+                    <a href="#" class="nav-item sub-item" data-page="reports-building" id="nav-reports-building"
+                        style="padding: 10px 16px; font-size: 13px;">
+                        <i class="fas fa-building" style="font-size: 12px; margin-right: -4px;"></i>
+                        <span>Building Fund</span>
+                    </a>
+                </div>
+            </div>
             <a href="#" class="nav-item" data-page="settings" id="nav-settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
@@ -115,38 +137,41 @@
                 </div>
             </div>
 
-            <!-- Two Column: Recent Offerings + Recent Expenses -->
+            <!-- Missionary Funds Section -->
+            <h2 style="margin: 24px 0 12px; font-size: 1.1em; color: var(--text-secondary);"><i class="fas fa-church"
+                    style="color:#6c63ff;"></i> Missionary Funds</h2>
             <div class="dashboard-grid">
-                <!-- Recent Sunday Offerings -->
+                <!-- Missionary Offerings -->
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-church"></i> Recent Sunday Offerings</h3>
+                        <h3><i class="fas fa-hand-holding-dollar"></i> Missionary Offerings</h3>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Date (Sunday)</th>
+                                    <th>Date</th>
                                     <th>Amount</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="dashOfferingsBody">
+                            <tbody id="dashMissionaryOfferingsBody">
                             </tbody>
                         </table>
-                        <div class="empty-state" id="dashOfferingsEmpty" style="display:none;">
+                        <div class="empty-state" id="dashMissionaryOfferingsEmpty" style="display:none;">
                             <div class="empty-icon"><i class="fas fa-church"></i></div>
-                            <h3>No Offerings Yet</h3>
-                            <p>Record your first Sunday offering.</p>
-                            <button class="btn btn-primary" onclick="navigateTo('add-offering')">Add Offering</button>
+                            <h3>No Missionary Offerings</h3>
+                            <p>Record your first missionary offering.</p>
+                            <button class="btn btn-primary" onclick="openModal('addOfferingModal')">Add
+                                Offering</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Expenses -->
+                <!-- Missionary Expenses -->
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-file-invoice-dollar"></i> Recent Expenses</h3>
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Missionary Expenses</h3>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
@@ -158,173 +183,310 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="dashExpensesBody">
+                            <tbody id="dashMissionaryExpensesBody">
                             </tbody>
                         </table>
-                        <div class="empty-state" id="dashExpensesEmpty" style="display:none;">
+                        <div class="empty-state" id="dashMissionaryExpensesEmpty" style="display:none;">
                             <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                            <h3>No Expenses Yet</h3>
-                            <p>Record your first church expense.</p>
-                            <button class="btn btn-primary" onclick="navigateTo('add-expense')">Add Expense</button>
+                            <h3>No Missionary Expenses</h3>
+                            <p>Record your first missionary expense.</p>
+                            <button class="btn btn-primary" onclick="openModal('addExpenseModal')">Add Expense</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- General Funds Section -->
+            <h2 style="margin: 24px 0 12px; font-size: 1.1em; color: var(--text-secondary);"><i class="fas fa-wallet"
+                    style="color:#00c9a7;"></i> General Funds</h2>
+            <div class="dashboard-grid">
+                <!-- General Fund Offerings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-hand-holding-dollar"></i> General Fund Offerings</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashGeneralOfferingsBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="dashGeneralOfferingsEmpty" style="display:none;">
+                            <div class="empty-icon"><i class="fas fa-wallet"></i></div>
+                            <h3>No General Fund Offerings</h3>
+                            <p>Record your first general fund offering.</p>
+                            <button class="btn btn-primary" onclick="openModal('addOfferingModal')">Add
+                                Offering</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- General Fund Expenses -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-invoice-dollar"></i> General Fund Expenses</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashGeneralExpensesBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="dashGeneralExpensesEmpty" style="display:none;">
+                            <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                            <h3>No General Fund Expenses</h3>
+                            <p>Record your first general fund expense.</p>
+                            <button class="btn btn-primary" onclick="openModal('addExpenseModal')">Add Expense</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Building Funds Section -->
+            <h2 style="margin: 24px 0 12px; font-size: 1.1em; color: var(--text-secondary);"><i class="fas fa-building"
+                    style="color:#ffa500;"></i> Building Funds</h2>
+            <div class="dashboard-grid">
+                <!-- Building Fund Offerings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-hand-holding-dollar"></i> Building Fund Offerings</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashBuildingOfferingsBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="dashBuildingOfferingsEmpty" style="display:none;">
+                            <div class="empty-icon"><i class="fas fa-building"></i></div>
+                            <h3>No Building Fund Offerings</h3>
+                            <p>Record your first building fund offering.</p>
+                            <button class="btn btn-primary" onclick="openModal('addOfferingModal')">Add
+                                Offering</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Building Fund Expenses -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Building Fund Expenses</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashBuildingExpensesBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="dashBuildingExpensesEmpty" style="display:none;">
+                            <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                            <h3>No Building Fund Expenses</h3>
+                            <p>Record your first building fund expense.</p>
+                            <button class="btn btn-primary" onclick="openModal('addExpenseModal')">Add Expense</button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== ADD OFFERING PAGE ==================== -->
+        <!-- ==================== OFFERING HISTORY PAGE ==================== -->
         <section class="page" id="page-add-offering">
-            <div class="form-layout">
-                <div class="card form-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-church"></i> Record Sunday Offering</h3>
-                    </div>
-                    <form id="offeringForm" class="offering-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="offeringDate">Date (Sunday) <span class="required">*</span></label>
-                                <input type="date" id="offeringDate" required>
-                                <div class="sunday-indicator" id="sundayIndicator">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <span id="sundayLabel">—</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="offeringAmount">Total Offering Amount (₱) <span
-                                        class="required">*</span></label>
-                                <div class="input-with-icon">
-                                    <span class="input-icon">₱</span>
-                                    <input type="number" id="offeringAmount" min="0" step="0.01" placeholder="0.00"
-                                        required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="offeringNotes">Notes (optional)</label>
-                            <textarea id="offeringNotes" rows="3"
-                                placeholder="E.g., 1st & 2nd service combined, special collection, etc."></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="reset" class="btn btn-secondary">Clear</button>
-                            <button type="submit" class="btn btn-primary btn-glow" id="saveOfferingBtn">
-                                <i class="fas fa-save"></i>
-                                Save Offering
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div class="report-controls page-header-controls">
+                <h2 class="page-title"><i class="fas fa-church"></i> Offerings</h2>
 
-                <!-- Offering History in Sidebar -->
-                <div class="form-sidebar">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-clipboard-list"></i> All Sunday Offerings</h3>
+                <div class="page-header-actions">
+                    <div class="month-selector">
+                        <label for="offeringHistoryMonth"><i class="fas fa-calendar-alt"></i> Filter Month</label>
+                        <select id="offeringHistoryMonth" class="report-dropdown">
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-glow header-record-btn" onclick="openModal('addOfferingModal')">
+                        <i class="fas fa-plus"></i> Record Offering
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid stats-grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-church"></i> Missionary Offerings</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="missionaryOfferingHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="missionaryOfferingHistoryEmpty" style="display:none;">
+                            <p>No missionary offerings yet.</p>
                         </div>
-                        <div class="sidebar-list-container">
-                            <table class="data-table compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Amount</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="offeringHistoryBody">
-                                </tbody>
-                            </table>
-                            <div class="empty-state small" id="offeringHistoryEmpty" style="display:none;">
-                                <p>No offerings recorded yet.</p>
-                            </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-wallet"></i> General Fund Offerings</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="generalOfferingHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="generalOfferingHistoryEmpty" style="display:none;">
+                            <p>No general fund offerings yet.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-building"></i> Building Fund Offerings</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buildingOfferingHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="buildingOfferingHistoryEmpty" style="display:none;">
+                            <p>No building fund offerings yet.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== ADD EXPENSE PAGE ==================== -->
+        <!-- ==================== EXPENSE HISTORY PAGE ==================== -->
         <section class="page" id="page-add-expense">
-            <div class="form-layout">
-                <div class="card form-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-receipt"></i> Record Expense</h3>
-                    </div>
-                    <form id="expenseForm" class="offering-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="expenseDate">Date <span class="required">*</span></label>
-                                <input type="date" id="expenseDate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="expenseAmount">Amount (₱) <span class="required">*</span></label>
-                                <div class="input-with-icon">
-                                    <span class="input-icon">₱</span>
-                                    <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="0.00"
-                                        required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="expenseDescription">Description <span class="required">*</span></label>
-                                <input type="text" id="expenseDescription"
-                                    placeholder="E.g., Electricity bill, Pastor's allowance, etc." required>
-                            </div>
-                            <div class="form-group">
-                                <label for="expenseCategory">Category</label>
-                                <select id="expenseCategory">
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Salary/Allowance">Salary / Allowance</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                    <option value="Supplies">Supplies</option>
-                                    <option value="Events">Events</option>
-                                    <option value="Mission">Mission</option>
-                                    <option value="Transportation">Transportation</option>
-                                    <option value="Others">Others</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="expenseNotes">Notes (optional)</label>
-                            <textarea id="expenseNotes" rows="2" placeholder="Additional details..."></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="reset" class="btn btn-secondary">Clear</button>
-                            <button type="submit" class="btn btn-primary btn-glow" id="saveExpenseBtn">
-                                <i class="fas fa-save"></i>
-                                Save Expense
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div class="report-controls page-header-controls">
+                <h2 class="page-title"><i class="fas fa-receipt"></i> Expense History</h2>
 
-                <!-- Expense History in Sidebar -->
-                <div class="form-sidebar">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-clipboard-list"></i> All Expenses</h3>
+                <div class="page-header-actions">
+                    <div class="month-selector">
+                        <label for="expenseHistoryMonth"><i class="fas fa-calendar-alt"></i> Filter Month</label>
+                        <select id="expenseHistoryMonth" class="report-dropdown">
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-glow header-record-btn" onclick="openModal('addExpenseModal')">
+                        <i class="fas fa-plus"></i> Record Expense
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid stats-grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-church"></i> Missionary Expenses</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="missionaryExpenseHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="missionaryExpenseHistoryEmpty" style="display:none;">
+                            <p>No missionary expenses yet.</p>
                         </div>
-                        <div class="sidebar-list-container">
-                            <table class="data-table compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="expenseHistoryBody">
-                                </tbody>
-                            </table>
-                            <div class="empty-state small" id="expenseHistoryEmpty" style="display:none;">
-                                <p>No expenses recorded yet.</p>
-                            </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-wallet"></i> General Fund Expenses</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="generalExpenseHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="generalExpenseHistoryEmpty" style="display:none;">
+                            <p>No general fund expenses yet.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-building"></i> Building Fund Expenses</h3>
+                    </div>
+                    <div class="sidebar-list-container">
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buildingExpenseHistoryBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state small" id="buildingExpenseHistoryEmpty" style="display:none;">
+                            <p>No building fund expenses yet.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
         <!-- ==================== MONTHLY REPORTS PAGE ==================== -->
         <section class="page" id="page-reports">
             <!-- Month Selector + Actions -->
@@ -378,57 +540,219 @@
                 </div>
             </div>
 
-            <!-- Selected Month Detail -->
-            <div class="card" id="monthDetailCard">
+            <!-- Sunday Service Breakdown -->
+            <div class="card" id="sundayDetailCard">
                 <div class="card-header">
-                    <h3><i class="fas fa-chart-pie"></i> <span id="monthDetailTitle">March 2026</span> — Breakdown</h3>
+                    <h3><i class="fas fa-church"></i> <span id="sundayDetailTitle">March 2026</span> — Missionary Funds
+                    </h3>
                 </div>
                 <div class="month-detail-content">
                     <div class="detail-section">
-                        <h4><i class="fas fa-church"></i> Offerings</h4>
+                        <h4><i class="fas fa-hand-holding-dollar"></i> Missionary Funds</h4>
                         <table class="data-table compact-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Amount</th>
-                                    <th>Notes</th>
+                                    <th>Week</th>
                                 </tr>
                             </thead>
-                            <tbody id="monthDetailOfferings"></tbody>
+                            <tbody id="sundayDetailOfferings"></tbody>
                         </table>
                         <div class="detail-total">
-                            Total Offerings: <strong id="monthDetailOfferingsTotal">₱0.00</strong>
+                            Total Sunday Offerings: <strong id="sundayDetailOfferingsTotal">₱0.00</strong>
                         </div>
                     </div>
                     <div class="detail-section">
-                        <h4><i class="fas fa-file-invoice-dollar"></i> Expenses</h4>
+                        <h4><i class="fas fa-file-invoice-dollar"></i> Missionary Expenses</h4>
                         <table class="data-table compact-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Description</th>
-                                    <th>Category</th>
                                     <th>Amount</th>
                                 </tr>
                             </thead>
-                            <tbody id="monthDetailExpenses"></tbody>
+                            <tbody id="sundayDetailExpenses"></tbody>
                         </table>
                         <div class="detail-total">
-                            Total Expenses: <strong id="monthDetailExpensesTotal">₱0.00</strong>
+                            Total Sunday Expenses: <strong id="sundayDetailExpensesTotal">₱0.00</strong>
+                        </div>
+                    </div>
+                    <div class="detail-summary">
+                        <div class="detail-summary-row">
+                            <span>Base Offerings</span>
+                            <span class="amount-cell" id="sundaySummaryBaseOfferings">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row" style="color: var(--accent-red); font-size: 0.9em;">
+                            <span>20% to Building Fund</span>
+                            <span id="sundaySummaryAllocation">-₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Net Offerings</span>
+                            <span class="amount-cell" id="sundaySummaryOfferings">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Total Expenses</span>
+                            <span class="expense-cell" id="sundaySummaryExpenses">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row"
+                            style="border-top: 1px dashed var(--border); padding-top: 12px; margin-top: 4px;">
+                            <strong>Balance - This Month</strong>
+                            <span class="amount-cell" id="sundaySummaryThisMonth"
+                                style="font-weight: bold; color: var(--text-primary);">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Dating Pera - Previous Balance</span>
+                            <span class="amount-cell" id="sundaySummaryPrevious"
+                                style="color: var(--primary-light);">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row total">
+                            <span>Total Balance</span>
+                            <span class="balance-cell" id="sundaySummaryRemaining">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- General Funds Breakdown -->
+            <div class="card" id="prayerDetailCard" style="margin-top: 24px;">
+                <div class="card-header">
+                    <h3><i class="fas fa-wallet"></i> <span id="prayerDetailTitle">March 2026</span> — General Funds
+                    </h3>
+                </div>
+                <div class="month-detail-content">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-hand-holding-dollar"></i> General Fund Offerings</h4>
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Week</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prayerDetailOfferings"></tbody>
+                        </table>
+                        <div class="detail-total">
+                            Total General Offerings: <strong id="prayerDetailOfferingsTotal">₱0.00</strong>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h4><i class="fas fa-file-invoice-dollar"></i> General Fund Expenses</h4>
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prayerDetailExpenses"></tbody>
+                        </table>
+                        <div class="detail-total">
+                            Total General Expenses: <strong id="prayerDetailExpensesTotal">₱0.00</strong>
                         </div>
                     </div>
                     <div class="detail-summary">
                         <div class="detail-summary-row">
                             <span>Total Offerings</span>
-                            <span class="amount-cell" id="monthSummaryOfferings">₱0.00</span>
+                            <span class="amount-cell" id="prayerSummaryOfferings">₱0.00</span>
                         </div>
                         <div class="detail-summary-row">
                             <span>Total Expenses</span>
-                            <span class="expense-cell" id="monthSummaryExpenses">₱0.00</span>
+                            <span class="expense-cell" id="prayerSummaryExpenses">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row"
+                            style="border-top: 1px dashed var(--border); padding-top: 12px; margin-top: 4px;">
+                            <strong>Balance - This Month</strong>
+                            <span class="amount-cell" id="prayerSummaryThisMonth"
+                                style="font-weight: bold; color: var(--text-primary);">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Dating Pera - Previous Balance</span>
+                            <span class="amount-cell" id="prayerSummaryPrevious"
+                                style="color: var(--primary-light);">₱0.00</span>
                         </div>
                         <div class="detail-summary-row total">
-                            <span>Remaining Balance</span>
-                            <span class="balance-cell" id="monthSummaryRemaining">₱0.00</span>
+                            <span>Total Balance</span>
+                            <span class="balance-cell" id="prayerSummaryRemaining">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Building Funds Breakdown -->
+            <div class="card" id="buildingDetailCard" style="margin-top: 24px; display: none;">
+                <div class="card-header">
+                    <h3><i class="fas fa-building"></i> <span id="buildingDetailTitle">March 2026</span> — Building Fund
+                    </h3>
+                </div>
+                <div class="month-detail-content">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-hand-holding-dollar"></i> Building Fund Offerings</h4>
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Week</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buildingDetailOfferings"></tbody>
+                        </table>
+                        <div class="detail-total">
+                            Total Building Offerings: <strong id="buildingDetailOfferingsTotal">₱0.00</strong>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h4><i class="fas fa-file-invoice-dollar"></i> Building Fund Expenses</h4>
+                        <table class="data-table compact-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buildingDetailExpenses"></tbody>
+                        </table>
+                        <div class="detail-total">
+                            Total Building Expenses: <strong id="buildingDetailExpensesTotal">₱0.00</strong>
+                        </div>
+                    </div>
+                    <div class="detail-summary">
+                        <div class="detail-summary-row">
+                            <span>Base Offerings</span>
+                            <span class="amount-cell" id="buildingSummaryBaseOfferings">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row" style="color: var(--balance-green); font-size: 0.9em;">
+                            <span>20% from Missionary</span>
+                            <span id="buildingSummaryAllocation">+₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Net Offerings</span>
+                            <span class="amount-cell" id="buildingSummaryOfferings">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Total Expenses</span>
+                            <span class="expense-cell" id="buildingSummaryExpenses">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row"
+                            style="border-top: 1px dashed var(--border); padding-top: 12px; margin-top: 4px;">
+                            <strong>Balance - This Month</strong>
+                            <span class="amount-cell" id="buildingSummaryThisMonth"
+                                style="font-weight: bold; color: var(--text-primary);">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row">
+                            <span>Dating Pera - Previous Balance</span>
+                            <span class="amount-cell" id="buildingSummaryPrevious"
+                                style="color: var(--primary-light);">₱0.00</span>
+                        </div>
+                        <div class="detail-summary-row total">
+                            <span>Total Balance</span>
+                            <span class="balance-cell" id="buildingSummaryRemaining">₱0.00</span>
                         </div>
                     </div>
                 </div>
@@ -499,6 +823,119 @@
         </section>
     </main>
 
+    <!-- Add Offering Modal -->
+    <div class="modal-overlay" id="addOfferingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-church"></i> Record Offerings</h3>
+                <button class="modal-close" onclick="closeModal('addOfferingModal')">&times;</button>
+            </div>
+            <form id="offeringForm" class="offering-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="offeringType">Service Type <span class="required">*</span></label>
+                        <select id="offeringType">
+                            <option value="Missionary Funds">Missionary Funds</option>
+                            <option value="General Funds">General Funds</option>
+                            <option value="Building Fund">Building Fund</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offeringDate" id="offeringDateLabel">Date <span class="required">*</span></label>
+                        <input type="date" id="offeringDate" required>
+                        <div class="sunday-indicator" id="sundayIndicator">
+                            <i class="fas fa-calendar-check"></i>
+                            <span id="sundayLabel">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="offeringAmount">Total Offering Amount (₱) <span class="required">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">₱</span>
+                            <input type="number" id="offeringAmount" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="offeringNotes">Notes (optional)</label>
+                        <textarea id="offeringNotes" rows="2" placeholder="E.g., special collection, etc."></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('addOfferingModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-glow" id="saveOfferingBtn">
+                        <i class="fas fa-save"></i> Save Offering
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal-overlay" id="addExpenseModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt"></i> Record Expense</h3>
+                <button class="modal-close" onclick="closeModal('addExpenseModal')">&times;</button>
+            </div>
+            <form id="expenseForm" class="offering-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expenseServiceType">Service Type <span class="required">*</span></label>
+                        <select id="expenseServiceType">
+                            <option value="Missionary Funds">Missionary Funds</option>
+                            <option value="General Funds">General Funds</option>
+                            <option value="Building Fund">Building Fund</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseDate">Date <span class="required">*</span></label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount">Amount (₱) <span class="required">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">₱</span>
+                            <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expenseDescription">Description <span class="required">*</span></label>
+                        <input type="text" id="expenseDescription" placeholder="E.g., Electricity bill, etc." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory">Category</label>
+                        <select id="expenseCategory">
+                            <option value="Utilities">Utilities</option>
+                            <option value="Salary/Allowance">Love Gift</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Supplies">Supplies</option>
+                            <option value="Events">Events</option>
+                            <option value="Mission">Mission</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label for="expenseNotes">Notes (optional)</label>
+                    <textarea id="expenseNotes" rows="2" placeholder="Additional details..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('addExpenseModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-glow" id="saveExpenseBtn">
+                        <i class="fas fa-save"></i> Save Expense
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Edit Offering Modal -->
     <div class="modal-overlay" id="editOfferingModal">
         <div class="modal modal-sm">
@@ -508,6 +945,14 @@
             </div>
             <form id="editOfferingForm" class="offering-form">
                 <input type="hidden" id="editOfferingId">
+                <div class="form-group">
+                    <label for="editOfferingType">Service Type</label>
+                    <select id="editOfferingType">
+                        <option value="Missionary Funds">Missionary Funds</option>
+                        <option value="General Funds">General Funds</option>
+                        <option value="Building Fund">Building Fund</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="editOfferingDate">Date</label>
                     <input type="date" id="editOfferingDate" required>
@@ -538,6 +983,14 @@
             </div>
             <form id="editExpenseForm" class="offering-form">
                 <input type="hidden" id="editExpenseId">
+                <div class="form-group">
+                    <label for="editExpenseServiceType">Service Type</label>
+                    <select id="editExpenseServiceType">
+                        <option value="Missionary Funds">Missionary Funds</option>
+                        <option value="General Funds">General Funds</option>
+                        <option value="Building Fund">Building Fund</option>
+                    </select>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="editExpenseDate">Date</label>
@@ -601,11 +1054,11 @@
     <!-- Toast Notification -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Firebase SDK (uncomment when using Firebase) -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script> -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script> -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-    <!-- Database Config (localStorage mode) -->
+    <!-- Database Config (Firebase Cloud mode) -->
     <script src="js/firebase-config.js"></script>
 
     <!-- Main Application -->

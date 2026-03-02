@@ -4,6 +4,7 @@
 
 /* --- CSS Custom Properties --- */
 :root {
+    color-scheme: dark;
     --bg-primary: #0f0f1a;
     --bg-secondary: #161625;
     --bg-card: rgba(22, 22, 37, 0.85);
@@ -50,6 +51,7 @@
 
 /* --- Light Mode Theme --- */
 [data-theme="light"] {
+    color-scheme: light;
     --bg-primary: #f5f6fa;
     --bg-secondary: #ffffff;
     --bg-card: rgba(255, 255, 255, 0.92);
@@ -645,6 +647,12 @@ body {
     display: block;
 }
 
+#page-dashboard,
+#page-add-offering,
+#page-add-expense {
+    zoom: 0.8;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -781,6 +789,7 @@ body {
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .data-table thead {
@@ -789,7 +798,7 @@ body {
 
 .data-table th {
     padding: 14px 20px;
-    text-align: left;
+    text-align: center;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
@@ -799,9 +808,20 @@ body {
     white-space: nowrap;
 }
 
+.data-table th:first-child,
+.data-table td:first-child {
+    width: 25%;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    width: 25%;
+}
+
 .data-table td {
     padding: 14px 20px;
     font-size: 14px;
+    text-align: center;
     border-bottom: 1px solid var(--border);
     color: var(--text-accent);
 }
@@ -890,6 +910,7 @@ body {
 /* --- Action Buttons --- */
 .action-btns {
     display: flex;
+    justify-content: center;
     gap: 6px;
 }
 
@@ -1030,6 +1051,16 @@ body {
     cursor: pointer;
 }
 
+.form-group select option {
+    background: #1a1a2e;
+    color: #e8e8f0;
+}
+
+[data-theme="light"] .form-group select option {
+    background: #ffffff;
+    color: #1a1a2e;
+}
+
 .input-with-icon {
     position: relative;
 }
@@ -1103,6 +1134,39 @@ body {
     margin-bottom: 24px;
 }
 
+.page-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--text-primary);
+}
+
+.page-title i {
+    margin-right: 8px;
+    color: var(--primary-light);
+}
+
+.page-header-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.header-record-btn {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+}
+
 .month-selector {
     display: flex;
     flex-direction: column;
@@ -1125,11 +1189,13 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--border-radius-sm);
     color: var(--text-primary);
-    padding: 10px 16px;
+    padding: 0 16px;
     font-size: 15px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
     min-width: 240px;
+    height: 44px;
+    box-sizing: border-box;
     cursor: pointer;
     outline: none;
     transition: var(--transition-fast);
@@ -1138,6 +1204,8 @@ body {
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 38px;
+    text-align: center;
+    text-align-last: center;
 }
 
 .report-dropdown:hover {
@@ -1152,6 +1220,7 @@ body {
 .report-dropdown option {
     background: var(--bg-secondary);
     color: var(--text-primary);
+    text-align: center;
 }
 
 .report-actions {
@@ -1708,6 +1777,34 @@ body {
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
+    }
+
+    .page-header-controls {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .page-header-actions {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .page-header-actions .month-selector {
+        width: 100%;
+        align-items: center;
+    }
+
+    .page-header-actions .report-dropdown {
+        width: 100%;
+    }
+
+    .header-record-btn {
+        width: 100%;
+        justify-content: center;
     }
 
     .report-dropdown {
