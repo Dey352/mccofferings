@@ -178,6 +178,7 @@ function navigateTo(page) {
         // Need to force reflow before triggering opacity
         void overlay.offsetWidth;
         overlay.style.opacity = '1';
+        document.body.classList.add('login-active');
 
         showToast('You have been logged out.', 'info');
 
@@ -296,6 +297,9 @@ function initAuth() {
     // Check if already logged in via Session Storage
     if (sessionStorage.getItem('mcc_auth') === 'true') {
         overlay.style.display = 'none';
+        document.body.classList.remove('login-active');
+    } else {
+        document.body.classList.add('login-active');
     }
 
     form.addEventListener('submit', (e) => {
@@ -308,6 +312,7 @@ function initAuth() {
             overlay.style.opacity = '0';
             setTimeout(() => {
                 overlay.style.display = 'none';
+                document.body.classList.remove('login-active');
             }, 400); // Wait for transition
             showToast('Login successful!', 'success');
         } else {

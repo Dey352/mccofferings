@@ -1983,6 +1983,13 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 /* --- Login Page --- */
+body.login-active {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
 .login-overlay {
     position: fixed;
     top: 0;
@@ -1998,8 +2005,7 @@ input[type=number]::-webkit-outer-spin-button {
     justify-content: center;
     padding: 20px;
     transition: opacity 0.4s ease;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
 }
 
 .login-card {
