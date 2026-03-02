@@ -171,25 +171,7 @@ function getServiceBadge(serviceType) {
 function navigateTo(page) {
     if (page === 'logout') {
         sessionStorage.removeItem('mcc_auth');
-        document.getElementById('loginForm').reset();
-
-        const overlay = document.getElementById('loginOverlay');
-        overlay.style.display = 'flex';
-        // Need to force reflow before triggering opacity
-        void overlay.offsetWidth;
-        overlay.style.opacity = '1';
-        document.body.classList.add('login-active');
-
-        showToast('You have been logged out.', 'info');
-
-        // Remove active states from nav to fully 'reset' visual state
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-        // Close sidebar if on mobile
-        const sb = document.getElementById('sidebar');
-        if (sb) sb.classList.remove('open');
-        document.getElementById('sidebarOverlay')?.classList.remove('active');
-
+        window.location.replace('login.html');
         return;
     }
 
@@ -264,7 +246,6 @@ function navigateTo(page) {
 // ==================== INITIALIZATION ====================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    initAuth();
     initThemeToggle();
     initParticles();
     initNavigation();
@@ -289,37 +270,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     refreshCurrentPage();
     setupRealtimeListeners();
 });
-
-function initAuth() {
-    const overlay = document.getElementById('loginOverlay');
-    const form = document.getElementById('loginForm');
-
-    // Check if already logged in via Session Storage
-    if (sessionStorage.getItem('mcc_auth') === 'true') {
-        overlay.style.display = 'none';
-        document.body.classList.remove('login-active');
-    } else {
-        document.body.classList.add('login-active');
-    }
-
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const user = document.getElementById('loginUser').value;
-        const pass = document.getElementById('loginPass').value;
-
-        if (user === 'MCC1975' && pass === 'mccadmin') {
-            sessionStorage.setItem('mcc_auth', 'true');
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                document.body.classList.remove('login-active');
-            }, 400); // Wait for transition
-            showToast('Login successful!', 'success');
-        } else {
-            showToast('Invalid username or password.', 'error');
-        }
-    });
-}
 
 function setupRealtimeListeners() {
     offeringsCollection.onSnapshot(snap => {
