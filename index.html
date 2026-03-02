@@ -17,6 +17,28 @@
 </head>
 
 <body>
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="assets/mcclogo.jpg" alt="MCC Logo">
+                <h2>Welcome Back</h2>
+                <p>Malauli Christian Church</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUser">Username</label>
+                    <input type="text" id="loginUser" required placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPass">Password</label>
+                    <input type="password" id="loginPass" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Background Particles -->
     <div class="bg-particles" id="bgParticles"></div>
 

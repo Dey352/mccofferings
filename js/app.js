@@ -240,6 +240,7 @@ function navigateTo(page) {
 // ==================== INITIALIZATION ====================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    initAuth();
     initThemeToggle();
     initParticles();
     initNavigation();
@@ -264,6 +265,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     refreshCurrentPage();
     setupRealtimeListeners();
 });
+
+function initAuth() {
+    const overlay = document.getElementById('loginOverlay');
+    const form = document.getElementById('loginForm');
+
+    // Check if already logged in via Session Storage
+    if (sessionStorage.getItem('mcc_auth') === 'true') {
+        overlay.style.display = 'none';
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = document.getElementById('loginUser').value;
+        const pass = document.getElementById('loginPass').value;
+
+        if (user === 'MCC19975' && pass === 'mccadmin') {
+            sessionStorage.setItem('mcc_auth', 'true');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 400); // Wait for transition
+            showToast('Login successful!', 'success');
+        } else {
+            showToast('Invalid username or password.', 'error');
+        }
+    });
+}
 
 function setupRealtimeListeners() {
     offeringsCollection.onSnapshot(snap => {

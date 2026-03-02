@@ -1981,3 +1981,57 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     opacity: 0.3;
 }
+
+/* --- Login Page --- */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-primary);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: opacity 0.4s ease;
+}
+
+.login-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-logo img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 12px;
+    object-fit: contain;
+    background: #fff;
+    /* In case the logo is transparent */
+    padding: 4px;
+}
+
+.login-logo h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.login-logo p {
+    color: var(--text-muted);
+    font-size: 14px;
+}
