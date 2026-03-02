@@ -303,7 +303,7 @@ function initAuth() {
         const user = document.getElementById('loginUser').value;
         const pass = document.getElementById('loginPass').value;
 
-        if (user === 'MCC19975' && pass === 'mccadmin') {
+        if (user === 'MCC1975' && pass === 'mccadmin') {
             sessionStorage.setItem('mcc_auth', 'true');
             overlay.style.opacity = '0';
             setTimeout(() => {
