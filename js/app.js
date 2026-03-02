@@ -169,6 +169,29 @@ function getServiceBadge(serviceType) {
 // ==================== NAVIGATION ====================
 
 function navigateTo(page) {
+    if (page === 'logout') {
+        sessionStorage.removeItem('mcc_auth');
+        document.getElementById('loginForm').reset();
+
+        const overlay = document.getElementById('loginOverlay');
+        overlay.style.display = 'flex';
+        // Need to force reflow before triggering opacity
+        void overlay.offsetWidth;
+        overlay.style.opacity = '1';
+
+        showToast('You have been logged out.', 'info');
+
+        // Remove active states from nav to fully 'reset' visual state
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+        // Close sidebar if on mobile
+        const sb = document.getElementById('sidebar');
+        if (sb) sb.classList.remove('open');
+        document.getElementById('sidebarOverlay')?.classList.remove('active');
+
+        return;
+    }
+
     if (page === 'settings') {
         const pwd = prompt('Enter password to access Settings:');
         if (pwd !== 'mccadmin') {
