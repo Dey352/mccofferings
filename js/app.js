@@ -525,21 +525,19 @@ function populateHistoryMonthDropdown(selectId) {
     const select = document.getElementById(selectId);
     if (!select) return;
     const currentVal = select.value;
-    const now = new Date();
-    const currentYear = now.getFullYear();
 
-    const yearsSet = new Set([currentYear]);
-    offeringsCache.forEach(o => yearsSet.add(new Date(o.date).getFullYear()));
-    expensesCache.forEach(o => yearsSet.add(new Date(o.date).getFullYear()));
-
-    const allMonths = [];
-    [...yearsSet].sort((a, b) => b - a).forEach(year => {
-        for (let m = 12; m >= 1; m--) {
-            allMonths.push(`${year}-${String(m).padStart(2, '0')}`);
-        }
+    // Collect only months that have actual data
+    const monthsSet = new Set();
+    offeringsCache.forEach(o => {
+        const d = new Date(o.date);
+        monthsSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    });
+    expensesCache.forEach(o => {
+        const d = new Date(o.date);
+        monthsSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
     });
 
-    const sorted = [...new Set(allMonths)].sort().reverse();
+    const sorted = [...monthsSet].sort().reverse();
 
     let html = '<option value="all">All Time</option>';
     html += sorted.map(m => {
