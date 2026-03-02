@@ -1989,6 +1989,7 @@ input[type=number]::-webkit-outer-spin-button {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: var(--bg-primary);
     z-index: 9999;
     display: flex;
@@ -1996,6 +1997,8 @@ input[type=number]::-webkit-outer-spin-button {
     justify-content: center;
     padding: 20px;
     transition: opacity 0.4s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .login-card {
@@ -2007,6 +2010,7 @@ input[type=number]::-webkit-outer-spin-button {
     padding: 32px;
     box-shadow: var(--shadow-lg);
     animation: fadeIn 0.4s ease forwards;
+    margin: auto;
 }
 
 .login-logo {
@@ -2072,4 +2076,34 @@ input[type=number]::-webkit-outer-spin-button {
     padding: 12px;
     font-size: 15px;
     font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .login-overlay {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .login-card {
+        padding: 24px 20px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    .login-logo img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .login-logo h2 {
+        font-size: 20px;
+    }
+
+    .login-logo {
+        margin-bottom: 16px;
+    }
+
+    #loginForm .form-group {
+        margin-bottom: 12px;
+    }
 }
