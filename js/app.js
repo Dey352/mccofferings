@@ -268,6 +268,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     refreshDashboard();
     refreshCurrentPage();
+    // Ensure month dropdowns are populated after data loads
+    populateHistoryMonthDropdown('offeringHistoryMonth');
+    populateHistoryMonthDropdown('expenseHistoryMonth');
     setupRealtimeListeners();
 });
 
