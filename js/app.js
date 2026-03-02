@@ -223,7 +223,7 @@ function navigateTo(page) {
     const titles = {
         'dashboard': ['Dashboard', "Overview of this month's finances"],
         'add-offering': ['Add Offering', 'Record total Sunday service offering'],
-        'add-expense': ['Add Expense', 'Record a church expense'],
+        'add-expense': ['Expenses', 'Record a church expense'],
         'reports-missionary': ['Missionary Monthly Reports', 'Offerings vs expenses per month'],
         'reports-general': ['General Fund Monthly Reports', 'Offerings vs expenses per month'],
         'reports-building': ['Building Fund Monthly Reports', 'Offerings vs expenses per month'],

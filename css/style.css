@@ -1787,24 +1787,31 @@ body {
     }
 
     .page-header-actions {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        align-items: flex-end;
         width: 100%;
-        gap: 12px;
+        gap: 8px;
     }
 
     .page-header-actions .month-selector {
-        width: 100%;
-        align-items: center;
+        flex: 1;
+        align-items: stretch;
+    }
+
+    .page-header-actions .month-selector label {
+        display: none;
     }
 
     .page-header-actions .report-dropdown {
         width: 100%;
+        min-width: 0;
     }
 
     .header-record-btn {
-        width: 100%;
+        flex: 1;
         justify-content: center;
+        white-space: nowrap;
+        padding: 0 12px;
     }
 
     .report-dropdown {
